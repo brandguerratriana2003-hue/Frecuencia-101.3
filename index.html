@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frecuencia 101.3 - Interfaz Interactiva Decisiones</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #1a1512;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #e0d5c1;
+            overflow: hidden;
+            background: radial-gradient(circle, #2c221a 0%, #0f0b08 100%);
+        }
+
+        .interface-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+        }
+
+        .radio-cabinet {
+            background: linear-gradient(135deg, #4a2e1b, #2b1a0f);
+            border: 12px solid #1f130b;
+            border-radius: 40px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 25px 50px rgba(0,0,0,0.9);
+            width: 100%;
+            padding: 30px;
+            position: relative;
+            border-bottom: 18px solid #170e08;
+        }
+
+        .brass-plate {
+            background: linear-gradient(90deg, #96702d, #d4af37, #96702d);
+            border: 2px solid #574116;
+            border-radius: 4px;
+            padding: 6px 15px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+
+        .brass-plate h1 {
+            color: #1a1102;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.2);
+            margin-bottom: 2px;
+        }
+
+        .brass-plate p {
+            color: #3b2807;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .speaker-panel {
+            background-color: #14110e;
+            background-image: 
+                linear-gradient(90deg, rgba(40,30,20,0.3) 1px, transparent 1px),
+                linear-gradient(rgba(40,30,20,0.3) 1px, transparent 1px);
+            background-size: 4px 4px;
+            border: 6px solid #261a12;
+            border-radius: 15px;
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0,0,0,1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .narrative-image-display {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            position: absolute;
+        }
+
+        .narrative-image-display.active {
+            opacity: 1;
+        }
+
+        .tuning-dial-window {
+            background: linear-gradient(to bottom, #221205, #42250d, #221205);
+            border: 4px solid #1a0e04;
+            border-radius: 6px;
+            height: 60px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+            overflow: hidden;
+        }
+
+        .frequency-scale {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background-image: repeating-linear-gradient(90deg, #d4af37 0px, #d4af37 2px, transparent 2px, transparent 20px);
+            opacity: 0.7;
+        }
+
+        .frequency-numbers {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            bottom: 6px;
+            color: #d4af37;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .pointer-needle {
+            position: absolute;
+            top: 0;
+            left: 0%;
+            width: 3px;
+            height: 100%;
+            background-color: #ff3333;
+            box-shadow: 0 0 8px #ff0000;
+            transition: left 0.1s linear;
+            z-index: 5;
+        }
+
+        .control-deck {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .rotary-knob-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 110px;
+        }
+
+        .rotary-knob {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(135deg, #2b2520, #14110f);
+            border: 5px solid #3d352e;
+            border-radius: 50%;
+            position: relative;
+            cursor: not-allowed;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .rotary-knob::before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 15px;
+            background-color: #52473f;
+            border-radius: 2px;
+            transition: background-color 0.3s ease;
+        }
+
+        .rotary-knob.selectable {
+            cursor: pointer;
+            border-color: #96702d;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), 0 6px 12px rgba(0,0,0,0.6);
+        }
+
+        .rotary-knob.selectable::before {
+            background-color: #d4af37;
+        }
+
+        .rotary-knob.selectable:hover {
+            transform: scale(1.05);
+            border-color: #d4af37;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.7), 0 6px 12px rgba(0,0,0,0.6);
+        }
+
+        .knob-label {
+            font-size: 10px;
+            color: #8a7b68;
+            text-transform: uppercase;
+            margin-top: 10px;
+            text-align: center;
+            min-height: 32px;
+            font-weight: bold;
+            line-height: 1.2;
+            transition: color 0.3s ease;
+        }
+
+        .rotary-knob.selectable + .knob-label {
+            color: #d4af37;
+        }
+
+        .push-button-block {
+            display: flex;
+            gap: 8px;
+            background-color: #17120e;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 3px solid #261f19;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .vintage-button {
+            width: 28px;
+            height: 45px;
+            background: linear-gradient(to bottom, #f2eadc, #c2b7a3);
+            border: 2px solid #8c8069;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 5px 0 #5e5441, 0 7px 9px rgba(0,0,0,0.5);
+            transition: all 0.05s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            color: #1a1102;
+        }
+
+        .vintage-button:active, .vintage-button.depressed {
+            height: 42px;
+            margin-top: 3px;
+            box-shadow: 0 2px 0 #5e5441, 0 2px 4px rgba(0,0,0,0.7);
+            background: linear-gradient(to bottom, #d6cbba, #aba08c);
+        }
+
+        .vintage-button-label {
+            font-size: 8px;
+            color: #8a7b68;
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .button-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .icon-prev::before { content: "\25C4\25C4"; letter-spacing: -2px; padding-left: 2px; }
+        .icon-play::before { content: "\25B6"; }
+        .icon-pause::before { content: "\275A\275A"; font-size: 11px; letter-spacing: -1px; }
+        .icon-next::before { content: "\25BA\25BA"; letter-spacing: -2px; padding-right: 2px; }
+        .icon-reset::before { content: "\21BA"; font-weight: bold; }
+
+        .status-marquee {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #615343;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            min-height: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="interface-wrapper">
+        
+        <div class="radio-cabinet">
+            
+            <div class="brass-plate">
+                <h1>Frecuencia 101.3</h1>
+                <p>Brandon Guerra - Isaac Avendaño - Santiago Cervera</p>
+            </div>
+
+            <div class="speaker-panel" id="imageDisplayPanel">
+                <!-- Las imagenes se insertan dinamicamente aqui -->
+            </div>
+
+            <div class="tuning-dial-window">
+                <div class="frequency-scale"></div>
+                <div class="pointer-needle" id="needle"></div>
+                <div class="frequency-numbers">
+                    <span>54 AM</span>
+                    <span>70</span>
+                    <span>90</span>
+                    <span>101.3 FM</span>
+                    <span>120</span>
+                    <span>140</span>
+                    <span>160 AM</span>
+                </div>
+            </div>
+
+            <div class="control-deck">
+                
+                <div class="rotary-knob-container">
+                    <div class="rotary-knob" id="knobLeft" onclick="makeDecision('left')"></div>
+                    <div class="knob-label" id="labelLeft">-</div>
+                </div>
+
+                <div class="push-button-block">
+                    <div class="button-unit">
+                        <button class="vintage-button icon-prev" id="prevBtn" onclick="prevDecision()"></button>
+                        <div class="vintage-button-label">Atrasar</div>
+                    </div>
+                    <div class="button-unit">
+                        <button class="vintage-button icon-play" id="playBtn" onclick="pressPlay()"></button>
+                        <div class="vintage-button-label">Play</div>
+                    </div>
+                    <div class="button-unit">
+                        <button class="vintage-button icon-pause" id="pauseBtn" onclick="pressPause()"></button>
+                        <div class="vintage-button-label">Pause</div>
+                    </div>
+                    <div class="button-unit">
+                        <button class="vintage-button icon-next" id="nextBtn" onclick="nextDecision()"></button>
+                        <div class="vintage-button-label">Adelant</div>
+                    </div>
+                    <div class="button-unit">
+                        <button class="vintage-button icon-reset" id="resetBtn" onclick="resetRadio()"></button>
+                        <div class="vintage-button-label">Reset</div>
+                    </div>
+                </div>
+
+                <div class="rotary-knob-container">
+                    <div class="rotary-knob" id="knobRight" onclick="makeDecision('right')"></div>
+                    <div class="knob-label" id="labelRight">-</div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="status-marquee" id="statusText">Sistema apagado. Presione Play.</div>
+
+    </div>
+
+    <audio id="audioVoice"></audio>
+    <audio id="audioLoop" loop></audio>
+    <audio id="audioClick"></audio>
+
+    <script>
+        const AUDIO_PATH = "audio/";
+        const IMAGE_PATH = "images/";
+
+        const CLICK_SOUND = AUDIO_PATH + "SAW_Roll_Click_percussion.wav";
+        const LOOP_SOUND = AUDIO_PATH + "SAW_History_Synth_Decisiones.wav";
+
+        const storyTree = {
+            intro: {
+                audio: AUDIO_PATH + "Intro_primera_desición.wav",
+                images: [
+                    { time: 0, src: "Cabina_radio.JPEG" },
+                    { time: 15, src: "Marcos_estudio.JPEG" },
+                    { time: 30, src: "Marcos_al_aire.JPEG" },
+                    { time: 60, src: "Linea_1_entrando.JPEG" },
+                    { time: 70, src: "Tomas.JPEG" },
+                    { time: 120, src: "Voz_distorsionada_aparece.JPEG" },
+                    { time: 170, src: "Tomas_es_golpeado.JPEG" },
+                    { time: 180, src: "Tomas_llorando.JPEG" },
+                    { time: 195, src: "Marcos_preocupado.JPEG" },
+                    { time: 240, src: "Marcos_tomando_desición.JPEG" }
+                ],
+                status: "Transmisión en vivo",
+                type: "branch",
+                options: {
+                    left: { text: "Seguir al aire", nextNode: "ruta_a" },
+                    right: { text: "Cortar la Transmisión", nextNode: "ruta_b" }
+                }
+            },
+            ruta_a: {
+                audio: AUDIO_PATH + "Ruta_A.wav",
+                images: [
+                    { time: 0, src: "Marcos_preocupado.JPEG" },
+                    { time: 103, src: "Rewind.JPEG" },
+                    { time: 110, src: "Marcos_Joven.JPEG" },
+                    { time: 123, src: "Llamada_Chica.JPEG" },
+                    { time: 180, src: "Chica_perseguida.JPEG" },
+                    { time: 212, src: "productor_intervencion.JPEG" },
+                    { time: 220, src: "Chica_noticiero.JPEG" },
+                    { time: 233, src: "Devuelta_al_presente.JPEG" },
+                    { time: 240, src: "Marcos_devuelta_al_presente.JPEG" },
+                    { time: 260, src: "Marcos_confiesa_la_culpa.JPEG" },
+                    { time: 290, src: "Tomas_es_liberado.JPEG" }
+                ],
+                status: "Ruta A: Sigue al Aire",
+                type: "branch",
+                options: {
+                    left: { text: "Confesión completa", nextNode: "final_a1" },
+                    right: { text: "Negación", nextNode: "final_a2" }
+                }
+            },
+            ruta_b: {
+                audio: AUDIO_PATH + "Ruta_B.wav", 
+                images: [
+                    { time: 0, src: "Marcos_ruta_b.JPEG" },
+                    { time: 7, src: "Marcos_llama_angustiado.JPEG" },
+                    { time: 15, src: "Marcos_llama_autoridades.JPEG" },
+                    { time: 30, src: "Voz_distorsionada_intercepta_Marcos.JPEG" },
+                    { time: 65, src: "Voz_distorsionada_telefono_Marcos.JPEG" },
+                    { time: 113, src: "Tomas_gritando.JPEG" }
+                ],
+                status: "Ruta B: Corte de Transmisión",
+                type: "branch",
+                options: {
+                    left: { text: "Enfrentarlo", nextNode: "final_b1" },
+                    right: { text: "Esconderse", nextNode: "final_b2" }
+                }
+            },
+            final_a1: {
+                audio: AUDIO_PATH + "Final_A1.wav", 
+                images: [
+                    { time: 0, src: "Marcos_confiesa_la_culpa.JPEG" },
+                    { time: 30, src: "Tomas_es_liberado.JPEG" },
+                    { time: 37, src: "Voz_distorsionada_intercepta_Marcos.JPEG" }
+                ],
+                status: "Final A1",
+                type: "end"
+            },
+            final_a2: {
+                audio: AUDIO_PATH + "Final_A2.wav", 
+                images: [
+                    { time: 0, src: "Marcos_no_confiesa.JPEG" },
+                    { time: 5, src: "Voz_distorsionada_enojado.JPEG" },
+                    { time: 10, src: "Disparan_a_Tomas.JPEG" },
+                    { time: 15, src: "Tomas_es_asesinado_A2.JPEG" }
+                ],
+                status: "Final A2",
+                type: "end"
+            },
+            final_b1: {
+                audio: AUDIO_PATH + "Final_B1.wav",
+                images: [
+                    { time: 0, src: "Marcos_ruta_b.JPEG" },
+                    { time: 15, src: "Marcos_busca_Tomas.JPEG" },
+                    { time: 25, src: "puerta_abriendose.JPEG" },
+                    { time: 30, src: "Voz_distorsionada_aparece_detras_Marcos.JPEG" },
+                    { time: 37, src: "Voz_distorsionada_golpea_Marcos.JPEG" },
+                    { time: 42, src: "Capturan_a_Marcos.JPEG" },
+                    { time: 53, src: "Marcos_amarrado.JPEG" },
+                    { time: 68, src: "Marcos_ve_morir_a_Tomas.JPEG" }
+                ],
+                status: "Final B1",
+                type: "end"
+            },
+            final_b2: {
+                audio: AUDIO_PATH + "Final_B2.wav",
+                images: [
+                    { time: 0, src: "Marcos_se_esconde.JPEG" },
+                    { time: 20, src: "Mensaje_de_texto.JPEG" },
+                    { time: 37, src: "Marcos_pide_ayuda.JPEG" },
+                    { time: 50, src: "Tomas_pide_ayuda_Marcos.JPEG" },
+                    { time: 55, src: "Tomas_ya_no_importa.JPEG" },
+                    { time: 60, src: "Marcos_ve_morir_a_Tomas_b2.JPEG" }
+                ],
+                status: "Final B2",
+                type: "end"
+            }
+        };
+
+        let currentState = "ready"; 
+        let currentNode = "intro";
+        let currentImageIndex = -1;
+        let nodeHistory = []; 
+        
+        const audioVoice = document.getElementById("audioVoice");
+        const audioLoop = document.getElementById("audioLoop");
+        const audioClick = document.getElementById("audioClick");
+        const needle = document.getElementById("needle");
+        const playBtn = document.getElementById("playBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const imageDisplayPanel = document.getElementById("imageDisplayPanel");
+        const statusText = document.getElementById("statusText");
+
+        const knobLeft = document.getElementById("knobLeft");
+        const knobRight = document.getElementById("knobRight");
+        const labelLeft = document.getElementById("labelLeft");
+        const labelRight = document.getElementById("labelRight");
+
+        audioClick.src = CLICK_SOUND;
+        audioLoop.src = LOOP_SOUND;
+
+        function loadImagesForNode(node) {
+            imageDisplayPanel.innerHTML = '';
+            if (!node.images || node.images.length === 0) return;
+
+            node.images.forEach((imgData, index) => {
+                const img = document.createElement('img');
+                img.src = IMAGE_PATH + imgData.src;
+                img.alt = `Escena ${index}`;
+                img.className = 'narrative-image-display';
+                img.id = `narrativeImage_${index}`;
+                imageDisplayPanel.appendChild(img);
+            });
+            currentImageIndex = -1; 
+        }
+
+        function updateImageSequence(currentTime) {
+            const node = storyTree[currentNode];
+            if (!node.images || node.images.length === 0) return;
+
+            let targetIndex = -1;
+            for (let i = node.images.length - 1; i >= 0; i--) {
+                if (currentTime >= node.images[i].time) {
+                    targetIndex = i;
+                    break;
+                }
+            }
+
+            if (targetIndex !== -1 && targetIndex !== currentImageIndex) {
+                if (currentImageIndex !== -1) {
+                    let oldImg = document.getElementById(`narrativeImage_${currentImageIndex}`);
+                    if(oldImg) oldImg.classList.remove('active');
+                }
+                let newImg = document.getElementById(`narrativeImage_${targetIndex}`);
+                if(newImg) newImg.classList.add('active');
+                currentImageIndex = targetIndex;
+            }
+        }
+
+        audioVoice.addEventListener("timeupdate", () => {
+            if (audioVoice.duration) {
+                const percentage = (audioVoice.currentTime / audioVoice.duration) * 100;
+                needle.style.left = percentage + "%";
+                updateImageSequence(audioVoice.currentTime); 
+            }
+        });
+
+        audioVoice.addEventListener("ended", () => {
+            const node = storyTree[currentNode];
+            if (node.type === "branch") {
+                activateDecisionState(node);
+            } else if (node.type === "end") {
+                currentState = "ended";
+                statusText.innerText = "Transmisión finalizada - Estática";
+                playBtn.classList.remove("depressed");
+            }
+        });
+
+        function playMechanicalClick() {
+            audioClick.currentTime = 0;
+            audioClick.play().catch(e => console.log("Audio click listo"));
+        }
+
+        function loadNode(nodeKey) {
+            currentNode = nodeKey;
+            const node = storyTree[nodeKey];
+
+            audioVoice.src = node.audio;
+            loadImagesForNode(node); 
+            
+            updateImageSequence(0);
+
+            audioVoice.play().then(() => {
+                currentState = "playing";
+                playBtn.classList.add("depressed");
+                pauseBtn.classList.remove("depressed"); 
+                statusText.innerText = node.status;
+            }).catch(err => {
+                console.log("Error de carga.", err);
+                statusText.innerText = "Error de archivo. Verifique rutas.";
+            });
+
+            knobLeft.classList.remove("selectable");
+            knobRight.classList.remove("selectable");
+            labelLeft.innerText = "-";
+            labelRight.innerText = "-";
+        }
+
+        function pressPlay() {
+            playMechanicalClick();
+            
+            if (currentState === "ready") {
+                loadNode(currentNode);
+            } else if (currentState === "paused") {
+                audioVoice.play();
+                currentState = "playing";
+                playBtn.classList.add("depressed");
+                pauseBtn.classList.remove("depressed");
+                statusText.innerText = storyTree[currentNode].status;
+            } else if (currentState === "decision") {
+                 statusText.innerText = "Alerta: Decisión requerida en cabina";
+            }
+        }
+
+        function pressPause() {
+            playMechanicalClick();
+
+            if (currentState === "playing") {
+                audioVoice.pause();
+                currentState = "paused";
+                playBtn.classList.remove("depressed");
+                pauseBtn.classList.add("depressed");
+                statusText.innerText = "Transmisión en pausa";
+            } else if (currentState === "paused") {
+                pressPlay(); 
+            }
+        }
+
+        function resetRadio() {
+            playMechanicalClick();
+            audioVoice.pause();
+            audioVoice.currentTime = 0; 
+            audioLoop.pause();
+            
+            currentState = "ready";
+            currentNode = "intro";
+            nodeHistory = [];
+            needle.style.left = "0%";
+            
+            playBtn.classList.remove("depressed");
+            pauseBtn.classList.remove("depressed");
+            imageDisplayPanel.innerHTML = ''; 
+            
+            knobLeft.classList.remove("selectable");
+            knobRight.classList.remove("selectable");
+            labelLeft.innerText = "-";
+            labelRight.innerText = "-";
+            statusText.innerText = "Sistema reiniciado. Presione Play.";
+        }
+
+        function nextDecision() {
+            playMechanicalClick();
+            if (currentState !== "playing" && currentState !== "paused") return;
+            
+            audioVoice.pause();
+            const node = storyTree[currentNode];
+            
+            needle.style.left = "100%";
+            
+            if (node.images && node.images.length > 0) {
+                if (currentImageIndex !== -1) {
+                    let oldImg = document.getElementById(`narrativeImage_${currentImageIndex}`);
+                    if(oldImg) oldImg.classList.remove('active');
+                }
+                currentImageIndex = node.images.length - 1;
+                let finalImg = document.getElementById(`narrativeImage_${currentImageIndex}`);
+                if(finalImg) finalImg.classList.add('active');
+            }
+
+            if (node.type === "branch") {
+                activateDecisionState(node);
+            } else if (node.type === "end") {
+                currentState = "ended";
+                statusText.innerText = "Transmisión finalizada - Estática";
+                playBtn.classList.remove("depressed");
+                pauseBtn.classList.remove("depressed");
+            }
+        }
+
+        function prevDecision() {
+            playMechanicalClick();
+            audioVoice.pause();
+            audioLoop.pause();
+            
+            if (nodeHistory.length > 0) {
+                currentNode = nodeHistory.pop();
+            } else {
+                currentNode = "intro";
+            }
+            
+            const node = storyTree[currentNode];
+            
+            needle.style.left = "100%";
+            
+            loadImagesForNode(node);
+            if (node.images && node.images.length > 0) {
+                currentImageIndex = node.images.length - 1;
+                let finalImg = document.getElementById(`narrativeImage_${currentImageIndex}`);
+                if(finalImg) finalImg.classList.add('active');
+            }
+
+            if (node.type === "branch") {
+                activateDecisionState(node);
+            } else if (node.type === "end") {
+                currentState = "ended";
+                statusText.innerText = "Transmisión finalizada - Estática";
+                playBtn.classList.remove("depressed");
+                pauseBtn.classList.remove("depressed");
+            }
+        }
+
+        function activateDecisionState(node) {
+            currentState = "decision";
+            statusText.innerText = "Alerta: Decisión requerida en cabina";
+            playBtn.classList.remove("depressed"); 
+            pauseBtn.classList.remove("depressed");
+            
+            audioLoop.currentTime = 0;
+            audioLoop.play().catch(e => console.log("Loop activo"));
+
+            knobLeft.classList.add("selectable");
+            knobRight.classList.add("selectable");
+
+            labelLeft.innerText = node.options.left.text;
+            labelRight.innerText = node.options.right.text;
+        }
+
+        function makeDecision(direction) {
+            if (currentState !== "decision") return;
+
+            playMechanicalClick();
+            audioLoop.pause();
+
+            nodeHistory.push(currentNode);
+
+            const node = storyTree[currentNode];
+            const nextNodeKey = node.options[direction].nextNode;
+            
+            loadNode(nextNodeKey);
+        }
+
+    </script>
+</body>
+</html>
